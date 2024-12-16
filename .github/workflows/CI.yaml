@@ -1,0 +1,77 @@
+# CI.yaml --- Github action workflow definition
+---
+
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        emacs_version:
+          - 29.1
+          - 29.2
+          - 29.3
+          - 29.4
+          - snapshot
+
+    name: Emacs ${{ matrix.emacs_version }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install GCC
+      uses: egor-tensin/setup-gcc@v1
+      with:
+        version: latest
+        platform: x64
+
+    - name: Install Emacs
+      uses: purcell/setup-emacs@master
+      with:
+        version: ${{ matrix.emacs_version }}
+
+    - name: Cache Cask packages
+      uses: actions/cache@v4
+      id: cache-cask-packages
+      with:
+        path: .cask
+        key: cache-cask-packages-000
+
+    - name: Cache Cask executable
+      uses: actions/cache@v4
+      id: cache-cask-executable
+      with:
+        path: ~/.cask
+        key: cache-cask-executable-000
+
+    - name: Install Cask
+      uses: cask/setup-cask@master
+      if: steps.cache-cask-executable.outputs.cache-hit != 'true'
+      with:
+        version: snapshot
+
+    - name: Update PATH
+      run: echo "$HOME/.cask/bin" >> $GITHUB_PATH
+
+    - name: Byte Compile
+      run: make compile
+
+    - name: Compile grammar
+      run: make grammar
+
+    - name: Run Tests
+      run: make check
+
+    - name: Run Lint
+      run: make lint
