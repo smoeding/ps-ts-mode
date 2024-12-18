@@ -6,7 +6,7 @@
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2024-12-18 10:15:17 stm>
+;; Updated:          <2024-12-18 10:21:56 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -249,7 +249,7 @@ in `treesit-language-source-alist' and adds the entry stored in
 
 ;; Indentation
 
-(defcustom ps-ts-indent-level 4
+(defcustom ps-ts-indent-level 2
   "Number of spaces for each indententation step."
   :group 'ps-ts
   :type 'integer
