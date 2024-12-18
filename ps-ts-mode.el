@@ -6,7 +6,7 @@
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2024-12-18 10:21:56 stm>
+;; Updated:          <2024-12-18 13:21:04 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -65,12 +65,17 @@
 
 (defface ps-ts-comment
   '((t :inherit font-lock-comment-face))
-  "Face for comments."
+  "Face for PostScript comments."
+  :group 'ps-ts)
+
+(defface ps-ts-dsc
+  '((t :inherit font-lock-preprocessor-face))
+  "Face for PostScript document structure comments."
   :group 'ps-ts)
 
 (defface ps-ts-string
   '((t :inherit font-lock-string-face))
-  "Face for strings."
+  "Face for PostScript strings."
   :group 'ps-ts)
 
 (defface ps-ts-escape
@@ -80,32 +85,27 @@
 
 (defface ps-ts-keyword
   '((t :inherit font-lock-keyword-face))
-  "Face for keywords."
+  "Face for PostScript keywords."
   :group 'ps-ts)
 
-(defface ps-ts-dsc
-  '((t :inherit font-lock-preprocessor-face))
-  "Face for document structure comments."
+(defface ps-ts-operator
+  '((t :inherit font-lock-type-face))
+  "Face for common PostScript operators."
   :group 'ps-ts)
 
-(defface ps-ts-builtin
-  '((t :inherit font-lock-builtin-face))
-  "Face for built-in functions."
-  :group 'ps-ts)
-
-(defface ps-ts-constant
+(defface ps-ts-constant-name
   '((t :inherit font-lock-constant-face))
-  "Face for a constant."
+  "Face for PostScript constant names."
   :group 'ps-ts)
 
 (defface ps-ts-literal-name
   '((t :inherit font-lock-variable-name-face))
-  "Face for the name of a literal."
+  "Face for PostScript literal names."
   :group 'ps-ts)
 
 (defface ps-ts-font-name
   '((t :inherit font-lock-function-name-face))
-  "Face for the name of a builtin font."
+  "Face for the name of a builtin PostScript font."
   :group 'ps-ts)
 
 (defface ps-ts-number
@@ -170,21 +170,58 @@ in `treesit-language-source-alist' and adds the entry stored in
   "Regular expression matching builtin operator names.")
 
 (defvar ps-ts--constants-regex
-  (regexp-opt '("null" "true" "false" "$error" "errordict" "globaldict"
-                "statusdict" "systemdict" "userdict" "serverdict"
-                "UserObjects" "FontDirectory" "GlobalFontDirectory"
+  (regexp-opt '("null" "true" "false"
+                ;; Standard local dictionaries
+                "$error" "errordict" "statusdict" "userdict" "FontDirectory"
+                ;; Standard global dictionaries
+                "globaldict" "systemdict" "GlobalFontDirectory"
+                ;; User objects
+                "UserObjects"
+                ;; Job execution environment
+                "serverdict"
+                ;; Default encodings
                 "StandardEncoding" "ISOLatin1Encoding")
               'symbols)
   "Regular expression matching all constant names.")
 
 (defvar ps-ts--fonts-regex
-  (regexp-opt '("/Times-Roman" "/Times-Italic" "/Times-Bold"
-                "/Times-BoldItalic" "/Helvetica" "/Helvetica-Oblique"
-                "/Helvetica-Bold" "/Helvetica-BoldOblique"
-                "/Courier" "/Courier-Oblique" "/Courier-Bold"
-                "/Courier-BoldOblique" "/Symbol")
+  (regexp-opt '("/AvantGarde-Book"
+                "/AvantGarde-BookOblique"
+                "/AvantGarde-Demi"
+                "/AvantGarde-DemiOblique"
+                "/Bookman-Demi"
+                "/Bookman-DemiItalic"
+                "/Bookman-Light"
+                "/Bookman-LightItalic"
+                "/Courier"
+                "/Courier-Bold"
+                "/Courier-BoldOblique"
+                "/Courier-Oblique"
+                "/Helvetica"
+                "/Helvetica-Bold"
+                "/Helvetica-BoldOblique"
+                "/Helvetica-Narrow"
+                "/Helvetica-Narrow-Bold"
+                "/Helvetica-Narrow-BoldOblique"
+                "/Helvetica-Narrow-Oblique"
+                "/Helvetica-Oblique"
+                "/NewCenturySchlbk-Bold"
+                "/NewCenturySchlbk-BoldItalic"
+                "/NewCenturySchlbk-Italic"
+                "/NewCenturySchlbk-Roman"
+                "/Palatino-Bold"
+                "/Palatino-BoldItalic"
+                "/Palatino-Italic"
+                "/Palatino-Roman"
+                "/Symbol"
+                "/Times-Bold"
+                "/Times-BoldItalic"
+                "/Times-Italic"
+                "/Times-Roman"
+                "/ZapfChancery-MediumItalic"
+                "/ZapfDingbats")
               'symbols)
-  "Regular expression matching the standard builtin fonts.")
+  "Regular expression matching the 35 standard builtin fonts.")
 
 (defvar ps-ts-mode-feature-list
   ;; Level 1 usually contains only comments and definitions.
@@ -197,7 +234,7 @@ in `treesit-language-source-alist' and adds the entry stored in
   '((comment)
     (keyword builtin string literal)
     (constant number escape-sequence)
-    (error))
+    (error brackets))
   "`treesit-font-lock-feature-list' for `ps-ts-mode'.")
 
 (defvar ps-ts-mode-font-lock-settings
@@ -227,8 +264,8 @@ in `treesit-language-source-alist' and adds the entry stored in
 
     :feature constant
     :language postscript
-    (((operator) @ps-ts-constant
-      (:match ,ps-ts--constants-regex @ps-ts-constant)))
+    (((operator) @ps-ts-constant-name
+      (:match ,ps-ts--constants-regex @ps-ts-constant-name)))
 
     :feature keyword
     :language postscript
@@ -237,8 +274,14 @@ in `treesit-language-source-alist' and adds the entry stored in
 
     :feature builtin
     :language postscript
-    (((operator ) @ps-ts-builtin
-      (:match ,ps-ts--builtin-regex @ps-ts-builtin)))
+    (((operator ) @ps-ts-operator
+      (:match ,ps-ts--builtin-regex @ps-ts-operator)))
+
+    :feature brackets
+    :language postscript
+    (((dictionary ["<<" ">>"] @ps-ts-bracket))
+     ((procedure ["{" "}"] @ps-ts-bracket))
+     ((array ["[" "]"] @ps-ts-bracket)))
 
     :feature error
     :language postscript
