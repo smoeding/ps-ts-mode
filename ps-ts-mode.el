@@ -6,7 +6,7 @@
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2024-12-18 13:21:04 stm>
+;; Updated:          <2024-12-18 13:34:47 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -221,7 +221,7 @@ in `treesit-language-source-alist' and adds the entry stored in
                 "/ZapfChancery-MediumItalic"
                 "/ZapfDingbats")
               'symbols)
-  "Regular expression matching the 35 standard builtin fonts.")
+  "Regular expression matching the 35 standard PostScript fonts.")
 
 (defvar ps-ts-mode-feature-list
   ;; Level 1 usually contains only comments and definitions.
@@ -376,7 +376,7 @@ variable `treesit-font-lock-level' to control the level of
 fontification.
 
 Indentation is implemented for array, procedure and dictionary
-element.  Customize `ps-ts-indent-level' to set the level of
+elements.  Customize `ps-ts-indent-level' to set the level of
 indentation to use.
 
 The mode needs the Tree-sitter parser for PostScript code.
