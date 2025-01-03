@@ -6,7 +6,7 @@
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2025-01-03 11:20:31 stm>
+;; Updated:          <2025-01-03 13:19:57 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -133,7 +133,8 @@
 ;; Language grammar
 
 (defconst ps-ts-mode-treesit-language-source
-  '(postscript . ("https://github.com/smoeding/tree-sitter-postscript"))
+  '(postscript . ("https://github.com/smoeding/tree-sitter-postscript"
+                  "v1.1.0"))
   "The language source entry for the associated PostScript parser.
 The value refers to the specific version of the parser that the
 mode has been tested with.  Using this mode with either an older
