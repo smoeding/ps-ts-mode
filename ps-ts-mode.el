@@ -6,7 +6,7 @@
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2025-01-03 11:19:43 stm>
+;; Updated:          <2025-01-03 11:20:31 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -419,13 +419,14 @@ particular syntax error.
     (setq treesit-defun-type-regexp "\\`document_structure_comment\\'")
 
     ;; Font-Lock
-    (setq treesit-font-lock-feature-list ps-ts-mode-feature-list)
-    (setq treesit-font-lock-settings (apply #'treesit-font-lock-rules
-                                            ps-ts-mode-font-lock-settings))
+    (setq treesit-font-lock-feature-list ps-ts-mode-feature-list
+          treesit-font-lock-settings     (apply #'treesit-font-lock-rules
+                                                ps-ts-mode-font-lock-settings))
+
 
     ;; Indentation
-    (setq indent-tabs-mode ps-ts-indent-tabs-mode)
-    (setq treesit-simple-indent-rules ps-ts-indent-rules)
+    (setq indent-tabs-mode            ps-ts-indent-tabs-mode
+          treesit-simple-indent-rules ps-ts-indent-rules)
 
     (treesit-major-mode-setup)))
 
