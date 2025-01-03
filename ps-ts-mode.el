@@ -1,12 +1,12 @@
 ;;; ps-ts-mode.el --- Major mode for PostScript using Tree-sitter -*- lexical-binding: t; -*-
 
-;; Copyright (c) 2024  Stefan Möding
+;; Copyright (c) 2024, 2025  Stefan Möding
 
 ;; Author:           Stefan Möding <stm@kill-9.net>
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2024-12-18 13:34:47 stm>
+;; Updated:          <2025-01-03 10:31:59 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -59,6 +59,12 @@
   :prefix "ps-ts-"
   :group 'languages
   :link '(url-link :tag "Repository" "https://github.com/smoeding/ps-ts-mode"))
+
+(defcustom ps-ts-inhibit-doc-view nil
+  "Non-nil prevents automatic enabling of `doc-view-minor-mode'."
+  :group 'ps-ts
+  :type 'boolean
+  :safe 'booleanp)
 
 
 ;; Faces
@@ -379,6 +385,9 @@ Indentation is implemented for array, procedure and dictionary
 elements.  Customize `ps-ts-indent-level' to set the level of
 indentation to use.
 
+The `doc-view-minor-mode' is automatically activated unless the
+customization variable `ps-ts-inhibit-doc-view' is non-nil.
+
 The mode needs the Tree-sitter parser for PostScript code.
 A parser suitable for the current package version can be
 installed using the function `ps-ts-mode-install-grammar'.  Some
@@ -399,7 +408,8 @@ particular syntax error.
   (setq-local comment-start-skip "%+[ \t]*")
 
   ;; DocView minor mode allows to view the current PostScript file
-  (doc-view-minor-mode 1)
+  (unless ps-ts-inhibit-doc-view
+    (doc-view-minor-mode 1))
 
   ;; Treesitter
   (when (treesit-ready-p 'postscript)
