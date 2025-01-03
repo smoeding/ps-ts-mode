@@ -6,7 +6,7 @@
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2025-01-03 10:31:59 stm>
+;; Updated:          <2025-01-03 11:19:43 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -173,7 +173,7 @@ in `treesit-language-source-alist' and adds the entry stored in
                 "pop" "exch" "dup" "copy" "index" "roll" "clear" "count"
                 "mark" "counttomark")
               'symbols)
-  "Regular expression matching builtin operator names.")
+  "Regular expression matching other important operator names.")
 
 (defvar ps-ts--constants-regex
   (regexp-opt '("null" "true" "false"
@@ -377,9 +377,9 @@ in `treesit-language-source-alist' and adds the entry stored in
   "Major mode for editing PostScript files, powered by tree-sitter.
 \\<ps-ts-mode-map>
 Syntax highlighting for standard PostScript elements (operators,
-comments, strings, keywords) is available.  You can customize the
+comments, strings, keywords) is available.  Customize the
 variable `treesit-font-lock-level' to control the level of
-fontification.
+decoration.
 
 Indentation is implemented for array, procedure and dictionary
 elements.  Customize `ps-ts-indent-level' to set the level of
