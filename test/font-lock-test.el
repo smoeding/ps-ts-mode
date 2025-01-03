@@ -4,7 +4,7 @@
 
 ;; Author: Stefan Möding
 ;; Created: <2025-01-03 09:45:33 stm>
-;; Updated: <2025-01-03 11:18:12 stm>
+;; Updated: <2025-01-03 11:46:19 stm>
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -41,13 +41,34 @@
 ;;; Strings
 
 (ert-deftest fontify/string ()
-  (should (eq (ps-test-face-at 1 "(foo bar)") 'ps-ts-string)))
+  (ps-test-with-temp-buffer "(foo)"
+    (should (eq (ps-test-face-at 1) 'ps-ts-string))
+    (should (eq (ps-test-face-at 2) 'ps-ts-string))))
 
-(ert-deftest fontify/string-with-balanced-paren ()
-  (should (eq (ps-test-face-at 11 "(foo(baz)bar)") 'ps-ts-string)))
+(ert-deftest fontify/string-empty ()
+  (ps-test-with-temp-buffer "()"
+    (should (eq (ps-test-face-at 1) 'ps-ts-string))
+    (should (eq (ps-test-face-at 2) 'ps-ts-string))))
 
-(ert-deftest fontify/string-with-escape ()
-  (should (eq (ps-test-face-at 5 "(foo\\nbar)") 'ps-ts-escape)))
+(ert-deftest fontify/string-with-escaped-newline ()
+  (ps-test-with-temp-buffer "(foo\\nbar)"
+    (should (eq (ps-test-face-at 4) 'ps-ts-string))
+    (should (eq (ps-test-face-at 5) 'ps-ts-escape))
+    (should (eq (ps-test-face-at 6) 'ps-ts-escape))
+    (should (eq (ps-test-face-at 7) 'ps-ts-string))))
+
+(ert-deftest fontify/string-with-escaped-parenthesis ()
+  (ps-test-with-temp-buffer "(foo\\)bar)"
+    (should (eq (ps-test-face-at 4) 'ps-ts-string))
+    (should (eq (ps-test-face-at 5) 'ps-ts-escape))
+    (should (eq (ps-test-face-at 6) 'ps-ts-escape))
+    (should (eq (ps-test-face-at 7) 'ps-ts-string))))
+
+(ert-deftest fontify/string-with-balanced-parenthesis ()
+  (ps-test-with-temp-buffer "(foo(baz)bar)"
+   (should (eq (ps-test-face-at 3 ) 'ps-ts-string))
+   (should (eq (ps-test-face-at 7) 'ps-ts-string))
+   (should (eq (ps-test-face-at 11) 'ps-ts-string))))
 
 
 ;;; Numbers
