@@ -6,7 +6,7 @@
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2025-01-03 13:19:57 stm>
+;; Updated:          <2025-02-25 20:22:47 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -136,14 +136,14 @@
   '(postscript . ("https://github.com/smoeding/tree-sitter-postscript"
                   "v1.1.0"))
   "The language source entry for the associated PostScript parser.
-The value refers to the specific version of the parser that the
-mode has been tested with.  Using this mode with either an older
-or newer version of the parser might not work as expected.")
+The value refers to the specific version of the parser that the mode has
+been tested with.  Using this mode with either an older or newer version
+of the parser might not work as expected.")
 
 (defun ps-ts-mode-install-grammar ()
   "Install the language grammar for `ps-ts-mode'.
-The function removes existing entries for the PostScript language
-in `treesit-language-source-alist' and adds the entry stored in
+The function removes existing entries for the PostScript language in
+`treesit-language-source-alist' and adds the entry stored in
 `ps-ts-mode-treesit-language-source'."
   (interactive)
   ;; Remove existing entries
@@ -378,27 +378,25 @@ in `treesit-language-source-alist' and adds the entry stored in
   "Major mode for editing PostScript files, powered by tree-sitter.
 \\<ps-ts-mode-map>
 Syntax highlighting for standard PostScript elements (operators,
-comments, strings, keywords) is available.  Customize the
-variable `treesit-font-lock-level' to control the level of
-decoration.
+comments, strings, keywords) is available.  Customize the variable
+`treesit-font-lock-level' to control the level of decoration.
 
-Indentation is implemented for array, procedure and dictionary
-elements.  Customize `ps-ts-indent-level' to set the level of
-indentation to use.
+Indentation is implemented for array, procedure and dictionary elements.
+Customize `ps-ts-indent-level' to set the level of indentation to use.
 
 The `doc-view-minor-mode' is automatically activated unless the
 customization variable `ps-ts-inhibit-doc-view' is non-nil.
 
-The mode needs the Tree-sitter parser for PostScript code.
-A parser suitable for the current package version can be
-installed using the function `ps-ts-mode-install-grammar'.  Some
-development tools (C compiler, ...) are required for this.
+The mode needs the Tree-sitter parser for PostScript code.  A parser
+suitable for the current package version can be installed using the
+function `ps-ts-mode-install-grammar'.  Some development tools (C
+compiler, ...) are required for this.
 
 Indentation and fontification depend on the concrete syntax tree
-returned by the Tree-sitter parser.  So errors like a missing
-closing parenthesis or bracket can lead to wrong indentation or
-missing fontification.  This is easily resolved by fixing the
-particular syntax error.
+returned by the Tree-sitter parser.  So errors like a missing closing
+parenthesis or bracket can lead to wrong indentation or missing
+fontification.  This is easily resolved by fixing the particular syntax
+error.
 
 \\{ps-ts-mode-map}"
   (setq-local require-final-newline mode-require-final-newline)
