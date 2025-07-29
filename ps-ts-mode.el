@@ -6,7 +6,7 @@
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2025-07-29 14:55:09 stm>
+;; Updated:          <2025-07-29 18:17:49 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -1578,9 +1578,10 @@ grayfreq grayang grayproc | grayhalftone")
      "Return user path cache status and parameters"
      "-" "mark bsize bmax rsize rmax blimit"))
   "Operators and the operand stack before and after execution.
-Note: This alist contains duplicate keys since some operators can
-process different shapes of the operator stack.  Currently only one
-entry is used to generate the ElDoc string.  This is a know issue.")
+Note: The alist contains duplicate keys since some operators (e.g.
+transform) can process different shapes of the operator stack.  At the
+moment only the first entry is used to generate the ElDoc string.  This
+is a known issue.")
 
 (defvar ps-ts-operator-summary-obarray
   (let ((operators (obarray-make 255)))
