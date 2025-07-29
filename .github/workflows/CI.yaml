@@ -43,8 +43,23 @@ jobs:
       with:
         version: ${{ matrix.emacs_version }}
 
+    - name: Cache Cask packages
+      uses: actions/cache@v4
+      id: cache-cask-packages
+      with:
+        path: .cask
+        key: cache-cask-packages-000
+
+    - name: Cache Cask executable
+      uses: actions/cache@v4
+      id: cache-cask-executable
+      with:
+        path: ~/.cask
+        key: cache-cask-executable-000
+
     - name: Install Cask
       uses: cask/setup-cask@master
+      if: steps.cache-cask-executable.outputs.cache-hit != 'true'
       with:
         version: snapshot
 
