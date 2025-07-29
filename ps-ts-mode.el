@@ -6,7 +6,7 @@
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2025-07-29 13:14:29 stm>
+;; Updated:          <2025-07-29 14:55:09 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -1577,23 +1577,38 @@ grayfreq grayang grayproc | grayhalftone")
     ("ucachestatus"
      "Return user path cache status and parameters"
      "-" "mark bsize bmax rsize rmax blimit"))
-  "Alist with operators and the operand stack before and after execution.")
+  "Operators and the operand stack before and after execution.
+Note: This alist contains duplicate keys since some operators can
+process different shapes of the operator stack.  Currently only one
+entry is used to generate the ElDoc string.  This is a know issue.")
+
+(defvar ps-ts-operator-summary-obarray
+  (let ((operators (obarray-make 255)))
+    (dolist (elem ps-ts-operator-summary-alist)
+      (if (not (intern-soft (car elem) operators))
+          (let ((sym (intern (car elem) operators)))
+            ;; store documentation string in standard property
+            (put sym 'variable-documentation (cadr elem))
+            ;; store value; this will be a list with two elements
+            (set sym (cddr elem)))))
+    operators)
+  "Operators and the operand stack before and after execution.
+The variable `ps-ts-operator-summary-alist' is used to create this
+obarray.")
 
 (defun ps-ts-mode-eldoc-operator (&rest _unused)
   "Return operator at point with pre- and post-operation stack."
   (let ((node (treesit-node-at (point))))
     (if (and (treesit-node-p node)
-             (equal (treesit-node-type node) "operator")
+             (member (treesit-node-type node) '("operator" "[" "]" "<<" ">>"))
              (<= (treesit-node-start node) (point))
              (<= (point) (treesit-node-end node)))
-        (let ((summary (assoc-string
-                        (substring-no-properties (treesit-node-text node))
-                        ps-ts-operator-summary-alist)))
-          (if summary
-              (format "%s %s %s"
-                      (nth 2 summary)
-                      (propertize (car summary) 'face 'bold)
-                      (nth 3 summary)))))))
+        (let ((sym (intern-soft (treesit-node-text node)
+                                ps-ts-operator-summary-obarray)))
+          (if sym
+              (concat (car (symbol-value sym)) "  "
+                      (treesit-node-text node) "  "
+                      (cadr (symbol-value sym))))))))
 
 
 ;; Major mode definition
@@ -1693,7 +1708,6 @@ error.
     (setq treesit-font-lock-feature-list ps-ts-mode-feature-list
           treesit-font-lock-settings     (apply #'treesit-font-lock-rules
                                                 ps-ts-mode-font-lock-settings))
-
 
     ;; Indentation
     (setq indent-tabs-mode            ps-ts-indent-tabs-mode

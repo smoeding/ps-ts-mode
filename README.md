@@ -29,6 +29,10 @@ Indentation for array, procedure and dictionary structures is implemented.
 
 The keybindings <kbd>C-M-a</kbd> and <kbd>C-M-e</kbd> jump to the preceding or following document structure comment. In a DSC compliant document this includes the prolog, setup and page sections.
 
+### Documentation
+
+ElDoc is used to display pre- and post-execution stack details for the operator at point.
+
 ## Installation
 
 Emacs 29.1 or above with Tree-sitter support is required.
