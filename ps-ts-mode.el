@@ -6,7 +6,7 @@
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2025-02-25 20:22:47 stm>
+;; Updated:          <2025-07-29 11:12:26 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -313,8 +313,6 @@ The function removes existing entries for the PostScript language in
 
 (defvar ps-ts-indent-rules
   `((postscript
-     ;; top-level elements start in column zero
-     ((parent-is "document") column-0 0)
      ;; composite objects
      ((node-is "]") parent-bol 0)
      ((node-is "}") parent-bol 0)
@@ -322,8 +320,8 @@ The function removes existing entries for the PostScript language in
      ((parent-is "array") parent-bol ps-ts-indent-level)
      ((parent-is "procedure") parent-bol ps-ts-indent-level)
      ((parent-is "dictionary") parent-bol ps-ts-indent-level)
-     ;; default
-     (catch-all parent-bol 0)))
+     ;; use indentation from previous line by default
+     (catch-all prev-line 0)))
   "Indentation rules for `ps-ts-mode'.")
 
 
