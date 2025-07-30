@@ -6,7 +6,7 @@
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2025-07-29 18:17:49 stm>
+;; Updated:          <2025-07-30 10:16:25 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -65,6 +65,71 @@
   :group 'ps-ts
   :type 'boolean
   :safe 'booleanp)
+
+(defcustom ps-ts-important-operators
+  '("begin" "bind" "countexecstack" "def" "dict" "end" "exec" "execstack"
+    "exit" "for" "forall" "grestore" "grestoreall" "gsave" "if" "ifelse"
+    "loop" "quit" "repeat" "restore" "save" "showpage" "start" "stop"
+    "stopped")
+  "Important operators that should be displayed in a different face."
+  :group 'ps-ts
+  :type '(list string))
+
+(defcustom ps-ts-special-operators
+  '("null" "true" "false"
+    ;; Standard local dictionaries
+    "$error" "errordict" "statusdict" "userdict" "FontDirectory"
+    ;; Standard global dictionaries
+    "globaldict" "systemdict" "GlobalFontDirectory"
+    ;; User objects
+    "UserObjects"
+    ;; Job execution environment
+    "serverdict"
+    ;; Default encodings
+    "StandardEncoding" "ISOLatin1Encoding")
+  "Special language features and operators shown in a different face."
+  :group 'ps-ts
+  :type '(list string))
+
+(defcustom ps-ts-font-names
+  '("/AvantGarde-Book"
+    "/AvantGarde-BookOblique"
+    "/AvantGarde-Demi"
+    "/AvantGarde-DemiOblique"
+    "/Bookman-Demi"
+    "/Bookman-DemiItalic"
+    "/Bookman-Light"
+    "/Bookman-LightItalic"
+    "/Courier"
+    "/Courier-Bold"
+    "/Courier-BoldOblique"
+    "/Courier-Oblique"
+    "/Helvetica"
+    "/Helvetica-Bold"
+    "/Helvetica-BoldOblique"
+    "/Helvetica-Narrow"
+    "/Helvetica-Narrow-Bold"
+    "/Helvetica-Narrow-BoldOblique"
+    "/Helvetica-Narrow-Oblique"
+    "/Helvetica-Oblique"
+    "/NewCenturySchlbk-Bold"
+    "/NewCenturySchlbk-BoldItalic"
+    "/NewCenturySchlbk-Italic"
+    "/NewCenturySchlbk-Roman"
+    "/Palatino-Bold"
+    "/Palatino-BoldItalic"
+    "/Palatino-Italic"
+    "/Palatino-Roman"
+    "/Symbol"
+    "/Times-Bold"
+    "/Times-BoldItalic"
+    "/Times-Italic"
+    "/Times-Roman"
+    "/ZapfChancery-MediumItalic"
+    "/ZapfDingbats")
+  "PostScript font names."
+  :group 'ps-ts
+  :type '(list string))
 
 
 ;; Faces
@@ -154,175 +219,6 @@ The function removes existing entries for the PostScript language in
                ps-ts-mode-treesit-language-source)
   ;; Install the grammar
   (treesit-install-language-grammar 'postscript))
-
-
-;; Font-Lock
-
-(defvar ps-ts--operators-regex
-  (regexp-opt '("forall" "dict" "begin" "end" "def" "exec" "if" "ifelse"
-                "for" "repeat" "loop" "exit" "stop" "stopped"
-                "countexecstack" "execstack" "quit" "start" "save" "restore"
-                "bind" "gsave" "grestore" "grestoreall" "showpage")
-              'symbols)
-  "Regular expression matching important operator names.")
-
-(defvar ps-ts--builtin-regex
-  (regexp-opt '("add" "div" "idiv" "mod" "mul" "sub" "abs" "neg" "ceiling"
-                "floor" "round" "truncate" "sqrt" "atan" "cos" "sin" "exp"
-                "ln" "log" "rand" "srand" "rrand"
-                ;; Stack manipulation operators
-                "pop" "exch" "dup" "copy" "index" "roll" "clear" "count"
-                "mark" "counttomark")
-              'symbols)
-  "Regular expression matching other important operator names.")
-
-(defvar ps-ts--constants-regex
-  (regexp-opt '("null" "true" "false"
-                ;; Standard local dictionaries
-                "$error" "errordict" "statusdict" "userdict" "FontDirectory"
-                ;; Standard global dictionaries
-                "globaldict" "systemdict" "GlobalFontDirectory"
-                ;; User objects
-                "UserObjects"
-                ;; Job execution environment
-                "serverdict"
-                ;; Default encodings
-                "StandardEncoding" "ISOLatin1Encoding")
-              'symbols)
-  "Regular expression matching all constant names.")
-
-(defvar ps-ts--fonts-regex
-  (regexp-opt '("/AvantGarde-Book"
-                "/AvantGarde-BookOblique"
-                "/AvantGarde-Demi"
-                "/AvantGarde-DemiOblique"
-                "/Bookman-Demi"
-                "/Bookman-DemiItalic"
-                "/Bookman-Light"
-                "/Bookman-LightItalic"
-                "/Courier"
-                "/Courier-Bold"
-                "/Courier-BoldOblique"
-                "/Courier-Oblique"
-                "/Helvetica"
-                "/Helvetica-Bold"
-                "/Helvetica-BoldOblique"
-                "/Helvetica-Narrow"
-                "/Helvetica-Narrow-Bold"
-                "/Helvetica-Narrow-BoldOblique"
-                "/Helvetica-Narrow-Oblique"
-                "/Helvetica-Oblique"
-                "/NewCenturySchlbk-Bold"
-                "/NewCenturySchlbk-BoldItalic"
-                "/NewCenturySchlbk-Italic"
-                "/NewCenturySchlbk-Roman"
-                "/Palatino-Bold"
-                "/Palatino-BoldItalic"
-                "/Palatino-Italic"
-                "/Palatino-Roman"
-                "/Symbol"
-                "/Times-Bold"
-                "/Times-BoldItalic"
-                "/Times-Italic"
-                "/Times-Roman"
-                "/ZapfChancery-MediumItalic"
-                "/ZapfDingbats")
-              'symbols)
-  "Regular expression matching the 35 standard PostScript fonts.")
-
-(defvar ps-ts-mode-feature-list
-  ;; Level 1 usually contains only comments and definitions.
-  ;; Level 2 usually adds keywords, strings, data types, etc.
-  ;; Level 3 usually represents full-blown fontifications, including
-  ;; assignments, constants, numbers and literals, etc.
-  ;; Level 4 adds everything else that can be fontified: delimiters,
-  ;; operators, brackets, punctuation, all functions, properties,
-  ;; variables, etc.
-  '((comment)
-    (keyword builtin string literal)
-    (constant number escape-sequence)
-    (error brackets))
-  "`treesit-font-lock-feature-list' for `ps-ts-mode'.")
-
-(defvar ps-ts-mode-font-lock-settings
-  `( ;;
-    :feature comment
-    :language postscript
-    (((comment) @ps-ts-comment)
-     ((document_structure_comment) @ps-ts-dsc))
-
-    :feature string
-    :language postscript
-    (((string) @ps-ts-string))
-
-    :feature escape-sequence
-    :language postscript
-    :override t
-    ((string (escape_sequence) @ps-ts-escape))
-
-    :feature number
-    :language postscript
-    ((numeric) @ps-ts-number)
-
-    :feature literal
-    :language postscript
-    (((literal) @ps-ts-font-name (:match ,ps-ts--fonts-regex @ps-ts-font-name))
-     ((literal) @ps-ts-literal-name))
-
-    :feature constant
-    :language postscript
-    (((operator) @ps-ts-constant-name
-      (:match ,ps-ts--constants-regex @ps-ts-constant-name)))
-
-    :feature keyword
-    :language postscript
-    (((operator) @ps-ts-keyword
-      (:match ,ps-ts--operators-regex @ps-ts-keyword)))
-
-    :feature builtin
-    :language postscript
-    (((operator ) @ps-ts-operator
-      (:match ,ps-ts--builtin-regex @ps-ts-operator)))
-
-    :feature brackets
-    :language postscript
-    (((dictionary ["<<" ">>"] @ps-ts-bracket))
-     ((procedure ["{" "}"] @ps-ts-bracket))
-     ((array ["[" "]"] @ps-ts-bracket)))
-
-    :feature error
-    :language postscript
-    :override t
-    ((ERROR) @ps-ts-warning))
-  "`treesit-font-lock-settings' for `ps-ts-mode'.")
-
-
-;; Indentation
-
-(defcustom ps-ts-indent-level 2
-  "Number of spaces for each indententation step."
-  :group 'ps-ts
-  :type 'integer
-  :safe 'integerp)
-
-(defcustom ps-ts-indent-tabs-mode nil
-  "Indentation can insert tabs in PostScript mode if this is non-nil."
-  :group 'ps-ts
-  :type 'boolean
-  :safe 'booleanp)
-
-(defvar ps-ts-indent-rules
-  `((postscript
-     ;; composite objects
-     ((node-is "]") parent-bol 0)
-     ((node-is "}") parent-bol 0)
-     ((node-is ">>") parent-bol 0)
-     ((parent-is "array") parent-bol ps-ts-indent-level)
-     ((parent-is "procedure") parent-bol ps-ts-indent-level)
-     ((parent-is "dictionary") parent-bol ps-ts-indent-level)
-     ;; use indentation from previous line by default
-     (catch-all prev-line 0)))
-  "Indentation rules for `ps-ts-mode'.")
 
 
 ;; Eldoc
@@ -1612,6 +1508,139 @@ obarray.")
                       (cadr (symbol-value sym))))))))
 
 
+;; Completion
+
+(defvar ps-ts-completion-operators
+  (seq-uniq (mapcar #'car ps-ts-operator-summary-alist))
+  "The operator names that `completion-at-point' will suggest.")
+
+(defun ps-ts-mode-complete-operator ()
+  "Return operator names for `completion-at-point'.
+This function should be added to `completion-at-point-functions'."
+  (interactive "*")
+  (let ((node (treesit-node-at (point))))
+    (if (and (treesit-node-p node)
+             (equal (treesit-node-type node) "operator"))
+        (list (treesit-node-start node)
+              (treesit-node-end node)
+              (completion-table-dynamic
+               (lambda (_)
+                 ps-ts-completion-operators))))))
+
+
+;; Font-Lock
+
+(defvar ps-ts--operators-regex
+  (regexp-opt ps-ts-important-operators 'symbols)
+  "Regular expression matching important operator names.")
+
+(defvar ps-ts--builtin-regex
+  (regexp-opt (mapcar #'car ps-ts-operator-summary-alist) 'symbols)
+  "Regular expression matching all operator names.")
+
+(defvar ps-ts--constants-regex
+  (regexp-opt ps-ts-special-operators 'symbols)
+  "Regular expression matching all constant names.")
+
+(defvar ps-ts--fonts-regex
+  (regexp-opt ps-ts-font-names 'symbols)
+  "Regular expression matching PostScript fonts.")
+
+(defvar ps-ts-mode-feature-list
+  ;; Level 1 usually contains only comments and definitions.
+  ;; Level 2 usually adds keywords, strings, data types, etc.
+  ;; Level 3 usually represents full-blown fontifications, including
+  ;; assignments, constants, numbers and literals, etc.
+  ;; Level 4 adds everything else that can be fontified: delimiters,
+  ;; operators, brackets, punctuation, all functions, properties,
+  ;; variables, etc.
+  '((comment)
+    (keyword builtin string literal)
+    (constant number escape-sequence)
+    (error brackets))
+  "`treesit-font-lock-feature-list' for `ps-ts-mode'.")
+
+(defvar ps-ts-mode-font-lock-settings
+  `( ;;
+    :feature comment
+    :language postscript
+    (((comment) @ps-ts-comment)
+     ((document_structure_comment) @ps-ts-dsc))
+
+    :feature string
+    :language postscript
+    (((string) @ps-ts-string))
+
+    :feature escape-sequence
+    :language postscript
+    :override t
+    ((string (escape_sequence) @ps-ts-escape))
+
+    :feature number
+    :language postscript
+    ((numeric) @ps-ts-number)
+
+    :feature literal
+    :language postscript
+    (((literal) @ps-ts-font-name (:match ,ps-ts--fonts-regex @ps-ts-font-name))
+     ((literal) @ps-ts-literal-name))
+
+    :feature constant
+    :language postscript
+    (((operator) @ps-ts-constant-name
+      (:match ,ps-ts--constants-regex @ps-ts-constant-name)))
+
+    :feature keyword
+    :language postscript
+    (((operator) @ps-ts-keyword
+      (:match ,ps-ts--operators-regex @ps-ts-keyword)))
+
+    :feature builtin
+    :language postscript
+    (((operator ) @ps-ts-operator
+      (:match ,ps-ts--builtin-regex @ps-ts-operator)))
+
+    :feature brackets
+    :language postscript
+    (((dictionary ["<<" ">>"] @ps-ts-bracket))
+     ((procedure ["{" "}"] @ps-ts-bracket))
+     ((array ["[" "]"] @ps-ts-bracket)))
+
+    :feature error
+    :language postscript
+    :override t
+    ((ERROR) @ps-ts-warning))
+  "`treesit-font-lock-settings' for `ps-ts-mode'.")
+
+
+;; Indentation
+
+(defcustom ps-ts-indent-level 2
+  "Number of spaces for each indententation step."
+  :group 'ps-ts
+  :type 'integer
+  :safe 'integerp)
+
+(defcustom ps-ts-indent-tabs-mode nil
+  "Indentation can insert tabs in PostScript mode if this is non-nil."
+  :group 'ps-ts
+  :type 'boolean
+  :safe 'booleanp)
+
+(defvar ps-ts-indent-rules
+  `((postscript
+     ;; composite objects
+     ((node-is "]") parent-bol 0)
+     ((node-is "}") parent-bol 0)
+     ((node-is ">>") parent-bol 0)
+     ((parent-is "array") parent-bol ps-ts-indent-level)
+     ((parent-is "procedure") parent-bol ps-ts-indent-level)
+     ((parent-is "dictionary") parent-bol ps-ts-indent-level)
+     ;; use indentation from previous line by default
+     (catch-all prev-line 0)))
+  "Indentation rules for `ps-ts-mode'.")
+
+
 ;; Major mode definition
 
 (defvar ps-ts-mode-syntax-table
@@ -1716,6 +1745,9 @@ error.
 
     ;; Eldoc
     (add-hook 'eldoc-documentation-functions #'ps-ts-mode-eldoc-operator nil t)
+
+    ;; Completion
+    (add-hook 'completion-at-point-functions #'ps-ts-mode-complete-operator nil t)
 
     (treesit-major-mode-setup)))
 
