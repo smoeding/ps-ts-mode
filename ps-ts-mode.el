@@ -6,7 +6,7 @@
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2025-07-30 10:16:25 stm>
+;; Updated:          <2025-07-30 11:11:43 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -1527,6 +1527,18 @@ This function should be added to `completion-at-point-functions'."
                (lambda (_)
                  ps-ts-completion-operators))))))
 
+(defun ps-ts-mode-complete-font ()
+  "Return font names for `completion-at-point'."
+  (interactive "*")
+  (let ((node (treesit-node-at (point))))
+    (if (and (treesit-node-p node)
+             (equal (treesit-node-type node) "literal"))
+        (list (treesit-node-start node)
+              (treesit-node-end node)
+              (completion-table-dynamic
+               (lambda (_)
+                 ps-ts-font-names))))))
+
 
 ;; Font-Lock
 
@@ -1748,6 +1760,7 @@ error.
 
     ;; Completion
     (add-hook 'completion-at-point-functions #'ps-ts-mode-complete-operator nil t)
+    (add-hook 'completion-at-point-functions #'ps-ts-mode-complete-font nil t)
 
     (treesit-major-mode-setup)))
 
