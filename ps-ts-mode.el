@@ -213,7 +213,7 @@
 
 (defconst ps-ts-mode-treesit-language-source
   '(postscript . ("https://github.com/smoeding/tree-sitter-postscript"
-                  "v1.1.0"))
+                  "v1.2.0"))
   "The language source entry for the associated PostScript parser.
 The value refers to the specific version of the parser that the mode has
 been tested with.  Using this mode with either an older or newer version
