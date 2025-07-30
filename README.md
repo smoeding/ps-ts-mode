@@ -18,7 +18,7 @@ Syntax highlighting for the following elements is implemented:
 - numbers
 - strings including escape sequences
 - literal names
-- some important operators
+- operators
 - the standard builtin font names
 
 ### Indentation
@@ -29,9 +29,13 @@ Indentation for array, procedure and dictionary structures is implemented.
 
 The keybindings <kbd>C-M-a</kbd> and <kbd>C-M-e</kbd> jump to the preceding or following document structure comment. In a DSC compliant document this includes the prolog, setup and page sections.
 
+### Completion
+
+Completion at point can complete the regular PostScript operators and also the 35 standard PostScript font names.
+
 ### Documentation
 
-ElDoc is used to display pre- and post-execution stack details for the operator at point.
+ElDoc is used to display pre- and post-execution stack details for the operator at point in the echo area.
 
 ## Installation
 

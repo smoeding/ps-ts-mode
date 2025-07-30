@@ -6,7 +6,7 @@
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2025-07-30 11:11:43 stm>
+;; Updated:          <2025-07-30 11:56:07 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -1711,7 +1711,14 @@ Indentation is implemented for array, procedure and dictionary elements.
 Customize `ps-ts-indent-level' to set the level of indentation to use.
 
 The mode supports ElDoc to display up the pre- and post-execution
-operator stack for the operator at point.
+operator stack for the operator at point.  The echo area shows the
+operator stack before the execution, the named operator and then the
+operator stack after the execution (e.g.: \"num1 num2 add sum\").  The
+same representation is used in the Red Book, the PostScript Language
+Reference Manual.
+
+The function `completion-at-point' can complete the regular PostScript
+operators and the 35 standard PostScript font names.
 
 The `doc-view-minor-mode' is automatically activated unless the
 customization variable `ps-ts-inhibit-doc-view' is non-nil.
