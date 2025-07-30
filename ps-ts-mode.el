@@ -6,7 +6,7 @@
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2025-07-30 11:56:07 stm>
+;; Updated:          <2025-07-30 15:52:38 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -30,7 +30,21 @@
 
 ;; This package uses a Tree-sitter parser to provide syntax highlighting,
 ;; indentation and navigation for the PostScript page description language.
-;; PostScript is a tradmark of Adobe Inc.
+;; PostScript is a trademark of Adobe Inc.
+;;
+;; Syntax highlighting: Fontification is supported for PostScript comments,
+;;   strings, numbers, literals and operators.  Syntax errors can be shown
+;;   using a warning face by setting `treesit-font-lock-level' to 4.
+;;
+;; Indentation: PostScript does not have any established indentation rules.
+;;   So the mode only supports basic indentation for arrays, procedures and
+;;   dictionaries.
+;;
+;; Completion: The `completion-at-point' function can be used to complete
+;;   operators and the literals for the 35 standard PostScript fonts.
+;;
+;; ElDoc: The echo area indicates the pre- and post-execution stack for the
+;;   PostScript operator at point if `eldoc-mode' is enabled.
 ;;
 ;; The package uses a Tree-sitter library to parse PostScript code and you
 ;; need to install the appropriate parser.  It can be done by using this
@@ -71,7 +85,7 @@
     "exit" "for" "forall" "grestore" "grestoreall" "gsave" "if" "ifelse"
     "loop" "quit" "repeat" "restore" "save" "showpage" "start" "stop"
     "stopped")
-  "Important operators that should be displayed in a different face."
+  "Important operators that should be displayed using a different face."
   :group 'ps-ts
   :type '(list string))
 
@@ -127,7 +141,7 @@
     "/Times-Roman"
     "/ZapfChancery-MediumItalic"
     "/ZapfDingbats")
-  "PostScript font names."
+  "The 35 builtin PostScript font names."
   :group 'ps-ts
   :type '(list string))
 
@@ -1475,7 +1489,7 @@ grayfreq grayang grayproc | grayhalftone")
      "-" "mark bsize bmax rsize rmax blimit"))
   "Operators and the operand stack before and after execution.
 Note: The alist contains duplicate keys since some operators (e.g.
-transform) can process different shapes of the operator stack.  At the
+transform) can process different shapes of the operand stack.  At the
 moment only the first entry is used to generate the ElDoc string.  This
 is a known issue.")
 
@@ -1494,7 +1508,7 @@ The variable `ps-ts-operator-summary-alist' is used to create this
 obarray.")
 
 (defun ps-ts-mode-eldoc-operator (&rest _unused)
-  "Return operator at point with pre- and post-operation stack."
+  "Return the operator at point with the pre- and post-execution stack."
   (let ((node (treesit-node-at (point))))
     (if (and (treesit-node-p node)
              (member (treesit-node-type node) '("operator" "[" "]" "<<" ">>"))
@@ -1512,10 +1526,10 @@ obarray.")
 
 (defvar ps-ts-completion-operators
   (seq-uniq (mapcar #'car ps-ts-operator-summary-alist))
-  "The operator names that `completion-at-point' will suggest.")
+  "A list of operator names that `completion-at-point' will suggest.")
 
 (defun ps-ts-mode-complete-operator ()
-  "Return operator names for `completion-at-point'.
+  "Return the operator names for `completion-at-point'.
 This function should be added to `completion-at-point-functions'."
   (interactive "*")
   (let ((node (treesit-node-at (point))))
@@ -1528,7 +1542,7 @@ This function should be added to `completion-at-point-functions'."
                  ps-ts-completion-operators))))))
 
 (defun ps-ts-mode-complete-font ()
-  "Return font names for `completion-at-point'."
+  "Return the font names for `completion-at-point'."
   (interactive "*")
   (let ((node (treesit-node-at (point))))
     (if (and (treesit-node-p node)
@@ -1711,17 +1725,18 @@ Indentation is implemented for array, procedure and dictionary elements.
 Customize `ps-ts-indent-level' to set the level of indentation to use.
 
 The mode supports ElDoc to display up the pre- and post-execution
-operator stack for the operator at point.  The echo area shows the
-operator stack before the execution, the named operator and then the
-operator stack after the execution (e.g.: \"num1 num2 add sum\").  The
-same representation is used in the Red Book, the PostScript Language
-Reference Manual.
+operand stack for the operator at point.  The echo area displays the
+operand stack before the execution, the named operator and the stack
+after the execution (e.g. read \"num1 num2 add sum\" as \"the add
+operator expects two numbers on the stack and leaves their sum on the
+top of the stack\").  The same notation is used in the PostScript
+Language Reference Manual a.k.a. the Red Book.
 
 The function `completion-at-point' can complete the regular PostScript
 operators and the 35 standard PostScript font names.
 
-The `doc-view-minor-mode' is automatically activated unless the
-customization variable `ps-ts-inhibit-doc-view' is non-nil.
+The `doc-view-minor-mode' is automatically activated for a buffer unless
+the customization variable `ps-ts-inhibit-doc-view' is non-nil.
 
 The mode needs the Tree-sitter parser for PostScript code.  A parser
 suitable for the current package version can be installed using the
