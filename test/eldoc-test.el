@@ -4,7 +4,7 @@
 
 ;; Author: Stefan Möding
 ;; Created: <2025-01-03 09:45:33 stm>
-;; Updated: <2025-07-29 18:48:27 stm>
+;; Updated: <2025-07-31 16:56:28 stm>
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -38,6 +38,7 @@
 (declare-function ps-ts-mode-eldoc-operator (&rest _unused))
 
 
+;;; Operators
 
 (ert-deftest eldoc/showpage ()
   (ps-test-with-temp-buffer "showpage"
