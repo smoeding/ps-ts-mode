@@ -4,7 +4,7 @@
 
 ;; Author: Stefan Möding
 ;; Created: <2025-01-03 09:45:33 stm>
-;; Updated: <2025-01-03 11:46:19 stm>
+;; Updated: <2025-08-01 17:38:39 stm>
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -119,9 +119,17 @@
     (should (eq (ps-test-face-at 4) 'ps-ts-comment))
     (should (eq (ps-test-face-at 7) 'ps-ts-comment))))
 
-(ert-deftest fontify/document-structure-comment ()
-  (ps-test-with-temp-buffer "%!PS"
-    (should (eq (ps-test-face-at 3) 'ps-ts-dsc))))
+(ert-deftest fontify/dsc-header ()
+  (ps-test-with-temp-buffer "%!PS-Adobe-3.0"
+    (should (eq (ps-test-face-at 4) 'ps-ts-dsc))))
+
+(ert-deftest fontify/dsc-item ()
+  (ps-test-with-temp-buffer "%%Title: foo"
+    (should (eq (ps-test-face-at 4) 'ps-ts-dsc))))
+
+(ert-deftest fontify/dsc-query ()
+  (ps-test-with-temp-buffer "%%?BeginVMStatus"
+    (should (eq (ps-test-face-at 4) 'ps-ts-dsc))))
 
 
 ;;; Keywords

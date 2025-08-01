@@ -6,7 +6,7 @@
 ;; Maintainer:       Stefan Möding <stm@kill-9.net>
 ;; Version:          0.1.0
 ;; Created:          <2024-12-16 20:28:08 stm>
-;; Updated:          <2025-07-31 14:58:26 stm>
+;; Updated:          <2025-08-01 17:29:53 stm>
 ;; URL:              https://github.com/smoeding/ps-ts-mode
 ;; Keywords:         languages
 ;; Package-Requires: ((emacs "29.1"))
@@ -63,6 +63,7 @@
 
 ;; Requirements
 
+(require 'rx)
 (require 'treesit)
 
 
@@ -145,6 +146,108 @@
   :group 'ps-ts
   :type '(list string))
 
+(defcustom ps-ts-dsc-keywords
+  '("%%+"
+    "%%?BeginFeatureQuery:"      "%%?EndFeatureQuery:"
+    "%%?BeginFileQuery:"         "%%?EndFileQuery:"
+    "%%?BeginFontListQuery"      "%%?EndFontListQuery:"
+    "%%?BeginFontQuery:"         "%%?EndFontQuery:"
+    "%%?BeginPrinterQuery"       "%%?EndPrinterQuery:"
+    "%%?BeginProcSetQuery:"      "%%?EndProcSetQuery:"
+    "%%?BeginQuery:"             "%%?EndQuery:"
+    "%%?BeginResourceListQuery:" "%%?EndResourceListQuery:"
+    "%%?BeginResourceQuery:"     "%%?EndResourceQuery:"
+    "%%?BeginVMStatus"           "%%?EndVMStatus:"
+    "%%BeginBinary:"             "%%EndBinary"
+    "%%BeginCustomColor:"        "%%EndCustomColor"
+    "%%BeginData:"               "%%EndData"
+    "%%BeginDefaults"            "%%EndDefaults"
+    "%%BeginDocument:"           "%%EndDocument"
+    "%%BeginEmulation:"          "%%EndEmulation"
+    "%%BeginExitServer:"         "%%EndExitServer"
+    "%%BeginFeature:"            "%%EndFeature"
+    "%%BeginFile:"               "%%EndFile"
+    "%%BeginFont:"               "%%EndFont"
+    "%%BeginObject:"             "%%EndObject"
+    "%%BeginPageSetup"           "%%EndPageSetup"
+    "%%BeginPaperSize:"          "%%EndPaperSize"
+    "%%BeginPreview:"            "%%EndPreview"
+    "%%BeginProcSet:"            "%%EndProcSet"
+    "%%BeginProcessColor:"       "%%EndProcessColor"
+    "%%BeginProlog"              "%%EndProlog"
+    "%%BeginResource:"           "%%EndResource"
+    "%%BeginSetup"               "%%EndSetup"
+    "%%BoundingBox:"
+    "%%CMYKCustomColor:"
+    "%%Copyright:"
+    "%%CreationDate:"
+    "%%Creator:"
+    "%%DocumentCustomColors:"
+    "%%DocumentData:"
+    "%%DocumentFonts:"
+    "%%DocumentMedia:"
+    "%%DocumentNeededFiles:"
+    "%%DocumentNeededFonts:"
+    "%%DocumentNeededProcSets:"
+    "%%DocumentNeededResources:"
+    "%%DocumentPaperColors:"
+    "%%DocumentPaperForms:"
+    "%%DocumentPaperSizes:"
+    "%%DocumentPaperWeights:"
+    "%%DocumentPrinterRequired:"
+    "%%DocumentProcSets:"
+    "%%DocumentProcessColors:"
+    "%%DocumentSuppliedFiles:"
+    "%%DocumentSuppliedFonts:"
+    "%%DocumentSuppliedProcSets:"
+    "%%DocumentSuppliedResources:"
+    "%%EOF"
+    "%%Emulation:"
+    "%%EndComments"
+    "%%ExecuteFile:"
+    "%%Extensions:"
+    "%%Feature:"
+    "%%For:"
+    "%%IncludeDocument:"
+    "%%IncludeFeature:"
+    "%%IncludeFile:"
+    "%%IncludeFont:"
+    "%%IncludeProcSet:"
+    "%%IncludeResource:"
+    "%%LanguageLevel:"
+    "%%OperatorIntervention:"
+    "%%OperatorMessage:"
+    "%%Orientation:"
+    "%%Page:"
+    "%%PageBoundingBox:"
+    "%%PageCustomColors:"
+    "%%PageFiles: "
+    "%%PageFonts:"
+    "%%PageMedia:"
+    "%%PageOrder:"
+    "%%PageOrientation:"
+    "%%PageProcessColors:"
+    "%%PageRequirements:"
+    "%%PageResources:"
+    "%%PageTrailer"
+    "%%Pages:"
+    "%%PaperColor:"
+    "%%PaperForm:"
+    "%%PaperSize:"
+    "%%PaperWeight:"
+    "%%ProofMode:"
+    "%%RGBCustomColor:"
+    "%%Requirements:"
+    "%%Routing:"
+    "%%Title:"
+    "%%Trailer"
+    "%%VMlocation:"
+    "%%VMusage:"
+    "%%Version:")
+  "PostScript Document Structuring Conventions."
+  :group 'ps-ts
+  :type '(list string))
+
 
 ;; Faces
 
@@ -213,7 +316,7 @@
 
 (defconst ps-ts-mode-treesit-language-source
   '(postscript . ("https://github.com/smoeding/tree-sitter-postscript"
-                  "v1.2.0"))
+                  "v1.3.0"))
   "The language source entry for the associated PostScript parser.
 The value refers to the specific version of the parser that the mode has
 been tested with.  Using this mode with either an older or newer version
@@ -1581,6 +1684,20 @@ buffers using `ps-ts-mode'."
   (regexp-opt ps-ts-font-names 'symbols)
   "Regular expression matching PostScript fonts.")
 
+(defvar ps-ts--dsc-regex
+  (rx-to-string `(seq line-start
+                      (or (seq "%!PS-Adobe-" digit "." digit (* any))
+                          (seq "%!PS-AdobeFont-1.0" (* any))
+                          (seq "%!FontType1-1.0" (* any))
+                          ,@(mapcar (lambda (elt)
+                                      (if (or (string-suffix-p ":" elt)
+                                              (string-suffix-p "+" elt))
+                                          (list 'seq elt '(* any))
+                                        elt))
+                                    ps-ts-dsc-keywords))
+                      line-end))
+  "Regular expression to match Document Structuring Conventions 3.0.")
+
 (defvar ps-ts-mode-feature-list
   ;; Level 1 usually contains only comments and definitions.
   ;; Level 2 usually adds keywords, strings, data types, etc.
@@ -1599,8 +1716,10 @@ buffers using `ps-ts-mode'."
   `( ;;
     :feature comment
     :language postscript
-    (((comment) @ps-ts-comment)
-     ((document_structure_comment) @ps-ts-dsc))
+    (((document_structure_comment) @ps-ts-dsc
+      (:match ,ps-ts--dsc-regex @ps-ts-dsc))
+     ((document_structure_comment) @ps-ts-comment) ; not DSC: use comment face
+     ((comment) @ps-ts-comment))
 
     :feature string
     :language postscript
